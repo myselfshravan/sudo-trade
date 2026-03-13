@@ -77,16 +77,50 @@ Brokers have roles via `BrokerRole` flag:
 
 Multiple brokers run simultaneously. E.g., Groww for signals, Kite for execution.
 
+## Project Layout
+
+```
+sudo-trade/
+├── src/              # All source code (plugin architecture)
+├── configs/          # Runtime config files (TOML)
+│   └── default.toml  # Default engine configuration
+├── data/             # Runtime data (gitignored)
+│   ├── market/       # Historical + live market data
+│   ├── trades/       # Trade logs, paper + live
+│   ├── signals/      # Generated signals archive
+│   └── cache/        # LLM responses, API caches
+├── logs/             # Structured JSON logs (gitignored)
+├── docs/             # AI knowledge base — broker API specs, strategy notes
+│   ├── kite/         # Kite Connect API documentation
+│   └── groww/        # Groww API documentation
+├── tests/            # Test suite
+├── scripts/          # One-off scripts, data migrations, utilities
+└── configs/          # Runtime TOML configs
+```
+
+## Logging
+
+Structured JSON logs via `src/core/logger.py`. Logs to both stdout and `logs/sudo-trade.log`.
+
+```python
+from src.core import setup_logger, get_logger
+setup_logger(level="DEBUG")
+log = get_logger()
+log.info("engine started")
+```
+
 ## Commands
 
 - `uv run python -m src` — run the engine
 - `uv add <pkg>` — add a dependency
 - `uv sync` — sync dependencies
+- `uv run pytest` — run tests
 
 ## Git
 
 - Push via HTTPS to github.com/myselfshravan/sudo-trade
 - Conventional commit prefixes: init, feat, fix, refactor, docs
+- `data/` and `logs/` are gitignored (only .gitkeep tracked)
 
 ## Docs
 

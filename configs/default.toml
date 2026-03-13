@@ -1,0 +1,36 @@
+[engine]
+mode = "paper"  # paper | live
+log_level = "info"
+
+[brokers.kite]
+enabled = false
+role = "execution"  # data | execution | both
+
+[brokers.groww]
+enabled = false
+role = "data"
+
+[providers]
+enabled = []  # list of provider names to activate
+
+[strategy]
+styles = ["intraday", "swing", "positional"]
+instruments = ["equity", "fno"]
+
+[llm]
+default = "claude"
+model = "claude-opus-4-6"
+fallback = "openai"
+
+[data]
+dir = "data"
+market_dir = "data/market"
+trades_dir = "data/trades"
+signals_dir = "data/signals"
+cache_dir = "data/cache"
+
+[logging]
+dir = "logs"
+format = "json"
+rotation = "10 MB"
+retention = "30 days"
