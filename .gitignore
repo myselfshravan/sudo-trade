@@ -29,6 +29,7 @@ uv.lock
 data/**
 !data/.gitkeep
 !data/**/.gitkeep
+!data/reference/**
 
 # Logs
 logs/**
