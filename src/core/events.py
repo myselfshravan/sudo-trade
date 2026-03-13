@@ -30,6 +30,14 @@ class EventBus:
             return []
         return await asyncio.gather(*tasks, return_exceptions=True)
 
+    def emit_nowait(self, event: str, **data: Any) -> None:
+        """Schedule emit from sync context (e.g., WebSocket callbacks)."""
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(self.emit(event, **data))
+        except RuntimeError:
+            pass
+
     def listeners(self, event: str) -> list[EventHandler]:
         return list(self._handlers.get(event, []))
 

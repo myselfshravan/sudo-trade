@@ -25,11 +25,14 @@ Thumbs.db
 # uv
 uv.lock
 
-# Data (keep .gitkeep, ignore everything else)
-data/**
+# Data (keep .gitkeep and reference/, ignore everything else)
+data/*
 !data/.gitkeep
-!data/**/.gitkeep
-!data/reference/**
+!data/reference/
+data/market/
+data/trades/
+data/signals/
+data/cache/
 
 # Logs
 logs/**
