@@ -1,0 +1,7 @@
+[project]
+name = "sudo-trade"
+version = "0.1.0"
+description = "trades need sudo privileges"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
