@@ -1,15 +1,15 @@
 import asyncio
-import time
+import contextlib
 from datetime import datetime, timedelta
 
 import pyotp
 from growwapi import GrowwAPI, GrowwFeed
 
-from src.brokers.base import Broker, BrokerRole, Quote, Order, Position
+from src.brokers.base import BrokerRole, Order, Position, Quote
 from src.brokers.instruments import InstrumentMap
 from src.brokers.rate_limiter import GrowwRateLimits
-from src.core.events import EventBus
 from src.core.config import Config
+from src.core.events import EventBus
 from src.core.logger import get_logger
 
 log = get_logger()
@@ -61,10 +61,8 @@ class GrowwBroker:
     async def stop(self) -> None:
         if self._feed_task and not self._feed_task.done():
             self._feed_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._feed_task
-            except asyncio.CancelledError:
-                pass
         self._api = None
         self._feed = None
         log.info("groww broker stopped")
@@ -162,13 +160,15 @@ class GrowwBroker:
             now = datetime.now()
             for key, price in resp.items():
                 sym = key.split("_", 1)[1] if "_" in key else key
-                quotes.append(Quote(
-                    symbol=sym,
-                    price=float(price),
-                    volume=0,
-                    timestamp=now,
-                    exchange="NSE",
-                ))
+                quotes.append(
+                    Quote(
+                        symbol=sym,
+                        price=float(price),
+                        volume=0,
+                        timestamp=now,
+                        exchange="NSE",
+                    )
+                )
 
         return quotes
 
@@ -203,14 +203,16 @@ class GrowwBroker:
 
             candles = resp.get("candles", [])
             for c in candles:
-                all_candles.append({
-                    "timestamp": c[0],
-                    "open": c[1],
-                    "high": c[2],
-                    "low": c[3],
-                    "close": c[4],
-                    "volume": c[5],
-                })
+                all_candles.append(
+                    {
+                        "timestamp": c[0],
+                        "open": c[1],
+                        "high": c[2],
+                        "low": c[3],
+                        "close": c[4],
+                        "volume": c[5],
+                    }
+                )
 
             chunk_start = chunk_end
 
@@ -239,14 +241,16 @@ class GrowwBroker:
         for p in resp.get("positions", []):
             credit_qty = int(p.get("credit_quantity", 0))
             debit_qty = int(p.get("debit_quantity", 0))
-            positions.append(Position(
-                symbol=p.get("trading_symbol", ""),
-                quantity=credit_qty - debit_qty,
-                average_price=float(p.get("net_price", 0)),
-                pnl=float(p.get("realised_pnl", 0)),
-                product=p.get("product", ""),
-                exchange=p.get("exchange", ""),
-            ))
+            positions.append(
+                Position(
+                    symbol=p.get("trading_symbol", ""),
+                    quantity=credit_qty - debit_qty,
+                    average_price=float(p.get("net_price", 0)),
+                    pnl=float(p.get("realised_pnl", 0)),
+                    product=p.get("product", ""),
+                    exchange=p.get("exchange", ""),
+                )
+            )
 
         await self._events.emit("portfolio:positions", positions=positions)
         return positions
@@ -294,11 +298,13 @@ class GrowwBroker:
         for sym in symbols:
             info = self._instruments.by_symbol(sym)
             if info:
-                instruments.append({
-                    "exchange": info.exchange,
-                    "segment": info.segment,
-                    "exchange_token": info.exchange_token,
-                })
+                instruments.append(
+                    {
+                        "exchange": info.exchange,
+                        "segment": info.segment,
+                        "exchange_token": info.exchange_token,
+                    }
+                )
                 self._subscriptions.add(sym)
 
         if not instruments:
@@ -307,9 +313,7 @@ class GrowwBroker:
         self._feed.subscribe_ltp(instruments, on_data_received=self._on_ltp_data)
 
         if self._feed_task is None or self._feed_task.done():
-            self._feed_task = asyncio.create_task(
-                asyncio.to_thread(self._feed.consume)
-            )
+            self._feed_task = asyncio.create_task(asyncio.to_thread(self._feed.consume))
 
     async def unsubscribe(self, symbols: list[str]) -> None:
         if not self._feed:
@@ -319,11 +323,13 @@ class GrowwBroker:
         for sym in symbols:
             info = self._instruments.by_symbol(sym)
             if info:
-                instruments.append({
-                    "exchange": info.exchange,
-                    "segment": info.segment,
-                    "exchange_token": info.exchange_token,
-                })
+                instruments.append(
+                    {
+                        "exchange": info.exchange,
+                        "segment": info.segment,
+                        "exchange_token": info.exchange_token,
+                    }
+                )
                 self._subscriptions.discard(sym)
 
         if instruments:
@@ -343,9 +349,7 @@ class GrowwBroker:
                         "market:tick",
                         symbol=symbol,
                         price=float(tick.get("ltp", 0)),
-                        timestamp=datetime.fromtimestamp(
-                            tick.get("tsInMillis", 0) / 1000
-                        ),
+                        timestamp=datetime.fromtimestamp(tick.get("tsInMillis", 0) / 1000),
                     )
 
     # ── Helpers ──
@@ -353,17 +357,26 @@ class GrowwBroker:
     @staticmethod
     def _parse_interval(interval: str) -> int:
         mapping = {
-            "1m": 1, "5m": 5, "10m": 10, "1h": 60, "4h": 240,
-            "1d": 1440, "1w": 10080,
-            "minute": 1, "5minute": 5, "10minute": 10, "hour": 60,
-            "day": 1440, "week": 10080,
+            "1m": 1,
+            "5m": 5,
+            "10m": 10,
+            "1h": 60,
+            "4h": 240,
+            "1d": 1440,
+            "1w": 10080,
+            "minute": 1,
+            "5minute": 5,
+            "10minute": 10,
+            "hour": 60,
+            "day": 1440,
+            "week": 10080,
         }
         if interval in mapping:
             return mapping[interval]
         try:
             return int(interval)
-        except ValueError:
-            raise ValueError(f"Unknown interval: {interval}")
+        except ValueError as err:
+            raise ValueError(f"Unknown interval: {interval}") from err
 
     @staticmethod
     def _parse_date(date_str: str) -> datetime:

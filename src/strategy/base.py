@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Protocol, runtime_checkable, Any
+from typing import Any, Protocol, runtime_checkable
 
 from src.analysis.base import Signal
 
@@ -17,6 +17,7 @@ class TradeAction(Enum):
 @dataclass
 class TradeSignal:
     """The strategy engine's final verdict — what to trade and why."""
+
     action: TradeAction
     symbol: str
     quantity: int
@@ -39,6 +40,7 @@ class Strategy(Protocol):
     The AI picks the style — intraday, swing, positional, equities, F&O.
     Multiple strategies can run in parallel, each with its own logic.
     """
+
     name: str
 
     async def start(self) -> None: ...

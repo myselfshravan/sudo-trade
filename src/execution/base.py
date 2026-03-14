@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Protocol, runtime_checkable, Any
+from typing import Any, Protocol, runtime_checkable
 
 from src.strategy.base import TradeSignal
 
@@ -23,6 +23,7 @@ class Executor(Protocol):
     Paper executor logs trades without hitting real APIs.
     Live executor routes to the appropriate broker based on role config.
     """
+
     name: str
 
     async def start(self) -> None: ...

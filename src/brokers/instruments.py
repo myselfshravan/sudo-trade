@@ -6,7 +6,6 @@ from pathlib import Path
 
 import aiohttp
 
-
 INSTRUMENTS_URL = "https://growwapi-assets.groww.in/instruments/instrument.csv"
 
 
@@ -41,11 +40,10 @@ class InstrumentMap:
 
     async def _download(self) -> None:
         self._cache_dir.mkdir(parents=True, exist_ok=True)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(INSTRUMENTS_URL) as resp:
-                resp.raise_for_status()
-                content = await resp.text()
-                self._cache_file.write_text(content)
+        async with aiohttp.ClientSession() as session, session.get(INSTRUMENTS_URL) as resp:
+            resp.raise_for_status()
+            content = await resp.text()
+            self._cache_file.write_text(content)
 
     def _parse_csv(self) -> None:
         self._by_symbol.clear()

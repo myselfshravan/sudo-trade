@@ -1,6 +1,6 @@
 """Kite Connect broker integration. Stub — implement when API keys are ready."""
 
-from src.brokers.base import Broker, BrokerRole, Quote, Order, Position
+from src.brokers.base import BrokerRole, Order, Position, Quote
 
 
 class KiteBroker:
@@ -25,7 +25,9 @@ class KiteBroker:
     async def get_quotes(self, symbols: list[str]) -> list[Quote]:
         raise NotImplementedError
 
-    async def get_historical(self, symbol: str, interval: str, from_date: str, to_date: str) -> list[dict]:
+    async def get_historical(
+        self, symbol: str, interval: str, from_date: str, to_date: str
+    ) -> list[dict]:
         raise NotImplementedError
 
     async def place_order(self, order: Order) -> str:

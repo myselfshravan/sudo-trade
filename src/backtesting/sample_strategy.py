@@ -8,9 +8,9 @@ and emits `trade:signal` when short MA crosses long MA.
 from collections import defaultdict, deque
 from datetime import datetime
 
-from src.analysis.base import Signal, SignalType
-from src.strategy.base import TradeAction, TradeSignal
+from src.analysis.base import Signal
 from src.core.events import EventBus
+from src.strategy.base import TradeAction, TradeSignal
 
 
 class MovingAverageCrossover:
@@ -27,9 +27,7 @@ class MovingAverageCrossover:
         self._short_window = short_window
         self._long_window = long_window
         self._quantity = quantity
-        self._prices: dict[str, deque[float]] = defaultdict(
-            lambda: deque(maxlen=long_window + 1)
-        )
+        self._prices: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=long_window + 1))
         self._in_position: dict[str, bool] = defaultdict(bool)
 
     async def start(self) -> None:
@@ -41,9 +39,7 @@ class MovingAverageCrossover:
     async def evaluate(self, signals: list[Signal]) -> list[TradeSignal]:
         return []
 
-    async def _on_tick(
-        self, symbol: str, price: float, timestamp: datetime, **_
-    ) -> None:
+    async def _on_tick(self, symbol: str, price: float, timestamp: datetime, **_) -> None:
         prices = self._prices[symbol]
         prices.append(price)
 

@@ -137,9 +137,7 @@ class Backtester:
                 fill_price = self._simulator.fill_price(candle.close, fill_side)
                 fees = self._simulator.commission(fill_price, signal.quantity)
 
-                trade = self._tracker.close_position(
-                    signal.symbol, fill_price, timestamp, fees
-                )
+                trade = self._tracker.close_position(signal.symbol, fill_price, timestamp, fees)
                 if trade:
                     self._trades.append(trade)
                     self._capital += fill_price * signal.quantity - fees
@@ -158,9 +156,7 @@ class Backtester:
                 self._trades.append(trade)
                 self._capital += price * trade.quantity - fees
 
-    def _build_timeline(
-        self, data: dict[str, list[Candle]]
-    ) -> list[tuple[datetime, str, Candle]]:
+    def _build_timeline(self, data: dict[str, list[Candle]]) -> list[tuple[datetime, str, Candle]]:
         timeline = []
         for symbol, candles in data.items():
             for candle in candles:
@@ -168,9 +164,7 @@ class Backtester:
         timeline.sort(key=lambda x: x[0])
         return timeline
 
-    def _calculate_result(
-        self, timeline: list[tuple[datetime, str, Candle]]
-    ) -> BacktestResult:
+    def _calculate_result(self, timeline: list[tuple[datetime, str, Candle]]) -> BacktestResult:
         winning = [t for t in self._trades if t.pnl > 0]
         losing = [t for t in self._trades if t.pnl <= 0]
         total_pnl = sum(t.pnl for t in self._trades)

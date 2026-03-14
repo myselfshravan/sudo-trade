@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from src.backtesting.base import Candle, BacktestTrade
-from src.strategy.base import TradeSignal, TradeAction
+from src.backtesting.base import BacktestTrade
 
 
 class FillSimulator:
@@ -31,12 +30,14 @@ class PositionTracker:
     ) -> None:
         if symbol not in self._positions:
             self._positions[symbol] = []
-        self._positions[symbol].append({
-            "side": side,
-            "quantity": quantity,
-            "price": price,
-            "timestamp": timestamp,
-        })
+        self._positions[symbol].append(
+            {
+                "side": side,
+                "quantity": quantity,
+                "price": price,
+                "timestamp": timestamp,
+            }
+        )
 
     def close_position(
         self,

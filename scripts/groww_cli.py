@@ -11,12 +11,11 @@ Usage:
 
 import argparse
 import asyncio
-import sys
 from datetime import datetime, timedelta
 
-from src.core import Config, EventBus, setup_logger
 from src.brokers.base import BrokerRole
 from src.brokers.groww import GrowwBroker
+from src.core import Config, EventBus, setup_logger
 
 
 def format_price(price: float) -> str:
@@ -66,12 +65,14 @@ async def cmd_holdings(broker: GrowwBroker, args: argparse.Namespace) -> None:
     holdings = await broker.get_holdings()
     rows = []
     for h in holdings:
-        rows.append([
-            h.get("trading_symbol", ""),
-            str(h.get("quantity", 0)),
-            format_price(h.get("average_price", 0)),
-            h.get("isin", ""),
-        ])
+        rows.append(
+            [
+                h.get("trading_symbol", ""),
+                str(h.get("quantity", 0)),
+                format_price(h.get("average_price", 0)),
+                h.get("isin", ""),
+            ]
+        )
     print()
     print(format_table(["Symbol", "Qty", "Avg Price", "ISIN"], rows))
     print()
@@ -81,13 +82,15 @@ async def cmd_positions(broker: GrowwBroker, args: argparse.Namespace) -> None:
     positions = await broker.get_positions()
     rows = []
     for p in positions:
-        rows.append([
-            p.symbol,
-            str(p.quantity),
-            format_price(p.average_price),
-            format_price(p.pnl),
-            p.product,
-        ])
+        rows.append(
+            [
+                p.symbol,
+                str(p.quantity),
+                format_price(p.average_price),
+                format_price(p.pnl),
+                p.product,
+            ]
+        )
     print()
     print(format_table(["Symbol", "Qty", "Avg Price", "P&L", "Product"], rows))
     print()
@@ -107,16 +110,20 @@ async def cmd_historical(broker: GrowwBroker, args: argparse.Namespace) -> None:
     rows = []
     for c in candles[-20:]:
         ts = datetime.fromtimestamp(c["timestamp"]).strftime("%Y-%m-%d %H:%M")
-        rows.append([
-            ts,
-            format_price(c["open"]),
-            format_price(c["high"]),
-            format_price(c["low"]),
-            format_price(c["close"]),
-            f"{c['volume']:,}",
-        ])
+        rows.append(
+            [
+                ts,
+                format_price(c["open"]),
+                format_price(c["high"]),
+                format_price(c["low"]),
+                format_price(c["close"]),
+                f"{c['volume']:,}",
+            ]
+        )
 
-    print(f"\n  {args.symbol} — {args.interval} (last {min(20, len(candles))} of {len(candles)} candles)")
+    print(
+        f"\n  {args.symbol} — {args.interval} (last {min(20, len(candles))} of {len(candles)} candles)"
+    )
     print()
     print(format_table(["Time", "Open", "High", "Low", "Close", "Volume"], rows))
     print()

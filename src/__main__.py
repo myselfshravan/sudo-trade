@@ -1,6 +1,6 @@
 import asyncio
 
-from src.core import Engine, Config
+from src.core import Config, Engine
 
 
 async def main():

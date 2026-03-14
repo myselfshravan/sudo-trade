@@ -1,14 +1,14 @@
-import logging
 import json
+import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
 class JSONFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         log_entry = {
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
             "level": record.levelname,
             "module": record.module,
             "msg": record.getMessage(),
@@ -37,17 +37,15 @@ def setup_logger(
     if json_output:
         console.setFormatter(JSONFormatter())
     else:
-        console.setFormatter(logging.Formatter(
-            "%(asctime)s | %(levelname)-8s | %(module)s | %(message)s"
-        ))
+        console.setFormatter(
+            logging.Formatter("%(asctime)s | %(levelname)-8s | %(module)s | %(message)s")
+        )
     logger.addHandler(console)
 
     # File handler — logs to disk
     log_path = Path(log_dir)
     log_path.mkdir(parents=True, exist_ok=True)
-    file_handler = logging.FileHandler(
-        log_path / f"{name}.log", encoding="utf-8"
-    )
+    file_handler = logging.FileHandler(log_path / f"{name}.log", encoding="utf-8")
     file_handler.setFormatter(JSONFormatter())
     logger.addHandler(file_handler)
 

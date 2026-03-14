@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Protocol, runtime_checkable, Any
+from typing import Any, Protocol, runtime_checkable
 
 
 class SignalType(Enum):
@@ -15,6 +15,7 @@ class SignalType(Enum):
 @dataclass
 class Signal:
     """A single analysis signal that feeds into the strategy engine."""
+
     type: SignalType
     symbol: str
     value: float  # -1.0 (bearish) to 1.0 (bullish)
@@ -34,6 +35,7 @@ class Analyzer(Protocol):
     - Technical analyzer: price data → technical signal
     - Social analyzer: social media → social signal
     """
+
     name: str
 
     async def start(self) -> None: ...

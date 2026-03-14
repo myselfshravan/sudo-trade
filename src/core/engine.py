@@ -1,9 +1,9 @@
 import asyncio
 import signal
 
-from src.core.events import EventBus
-from src.core.registry import PluginRegistry, Plugin
 from src.core.config import Config
+from src.core.events import EventBus
+from src.core.registry import Plugin, PluginRegistry
 
 
 class Engine:

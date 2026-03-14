@@ -9,6 +9,7 @@ class Interface(Protocol):
     the engine doesn't care. Each interface wraps the engine and exposes
     it in whatever way makes sense.
     """
+
     name: str
 
     async def start(self) -> None: ...

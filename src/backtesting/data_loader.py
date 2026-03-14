@@ -2,9 +2,9 @@ import csv
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Protocol, runtime_checkable, Any
+from typing import Protocol, runtime_checkable
 
-from src.backtesting.base import Candle, BacktestConfig
+from src.backtesting.base import BacktestConfig, Candle
 
 
 @runtime_checkable
@@ -28,9 +28,7 @@ class CSVDataLoader:
             return await self._load_directory(path, config)
         return await self._load_file(path, config)
 
-    async def _load_directory(
-        self, path: Path, config: BacktestConfig
-    ) -> dict[str, list[Candle]]:
+    async def _load_directory(self, path: Path, config: BacktestConfig) -> dict[str, list[Candle]]:
         result = {}
         for csv_file in sorted(path.glob("*.csv")):
             symbol = csv_file.stem.upper()
@@ -42,9 +40,7 @@ class CSVDataLoader:
                 result[symbol] = candles
         return result
 
-    async def _load_file(
-        self, path: Path, config: BacktestConfig
-    ) -> dict[str, list[Candle]]:
+    async def _load_file(self, path: Path, config: BacktestConfig) -> dict[str, list[Candle]]:
         symbol = config.symbols[0] if config.symbols else path.stem.upper()
         candles = self._parse_csv(path)
         candles = self._filter_dates(candles, config)
@@ -60,14 +56,16 @@ class CSVDataLoader:
             if ts is None:
                 continue
 
-            candles.append(Candle(
-                timestamp=ts,
-                open=float(row.get("open", row.get("Open", 0))),
-                high=float(row.get("high", row.get("High", 0))),
-                low=float(row.get("low", row.get("Low", 0))),
-                close=float(row.get("close", row.get("Close", 0))),
-                volume=int(float(row.get("volume", row.get("Volume", 0)))),
-            ))
+            candles.append(
+                Candle(
+                    timestamp=ts,
+                    open=float(row.get("open", row.get("Open", 0))),
+                    high=float(row.get("high", row.get("High", 0))),
+                    low=float(row.get("low", row.get("Low", 0))),
+                    close=float(row.get("close", row.get("Close", 0))),
+                    volume=int(float(row.get("volume", row.get("Volume", 0)))),
+                )
+            )
 
         candles.sort(key=lambda c: c.timestamp)
         return candles
@@ -96,9 +94,7 @@ class CSVDataLoader:
 
         return None
 
-    def _filter_dates(
-        self, candles: list[Candle], config: BacktestConfig
-    ) -> list[Candle]:
+    def _filter_dates(self, candles: list[Candle], config: BacktestConfig) -> list[Candle]:
         filtered = candles
         if config.start_date:
             filtered = [c for c in filtered if c.timestamp >= config.start_date]
@@ -129,14 +125,16 @@ class JSONDataLoader:
             else:
                 continue
 
-            candles.append(Candle(
-                timestamp=ts,
-                open=float(item.get("open", 0)),
-                high=float(item.get("high", 0)),
-                low=float(item.get("low", 0)),
-                close=float(item.get("close", 0)),
-                volume=int(item.get("volume", 0)),
-            ))
+            candles.append(
+                Candle(
+                    timestamp=ts,
+                    open=float(item.get("open", 0)),
+                    high=float(item.get("high", 0)),
+                    low=float(item.get("low", 0)),
+                    close=float(item.get("close", 0)),
+                    volume=int(item.get("volume", 0)),
+                )
+            )
 
         candles.sort(key=lambda c: c.timestamp)
 

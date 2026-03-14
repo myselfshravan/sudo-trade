@@ -4,10 +4,10 @@ import json
 from datetime import datetime
 from typing import Any
 
-from src.analysis.base import Analyzer, Signal, SignalType
-from src.llm.client import OpenAIClient
+from src.analysis.base import Signal, SignalType
 from src.core.events import EventBus
 from src.core.logger import get_logger
+from src.llm.client import OpenAIClient
 
 log = get_logger()
 
@@ -67,17 +67,17 @@ class SentimentAnalyzer:
 
     async def analyze_quote(self, symbol: str, quote_data: dict) -> list[Signal]:
         data = f"""Stock: {symbol}
-Price: ₹{quote_data.get('price', 0):,.2f}
-Day Change: {quote_data.get('day_change_perc', 0):.2f}%
-Volume: {quote_data.get('volume', 0):,}
-Open: ₹{quote_data.get('ohlc', {}).get('open', 0):,.2f}
-High: ₹{quote_data.get('ohlc', {}).get('high', 0):,.2f}
-Low: ₹{quote_data.get('ohlc', {}).get('low', 0):,.2f}
-Close: ₹{quote_data.get('ohlc', {}).get('close', 0):,.2f}
-52W High: ₹{quote_data.get('week_52_high', 0):,.2f}
-52W Low: ₹{quote_data.get('week_52_low', 0):,.2f}
-Upper Circuit: ₹{quote_data.get('upper_circuit', 0):,.2f}
-Lower Circuit: ₹{quote_data.get('lower_circuit', 0):,.2f}"""
+Price: ₹{quote_data.get("price", 0):,.2f}
+Day Change: {quote_data.get("day_change_perc", 0):.2f}%
+Volume: {quote_data.get("volume", 0):,}
+Open: ₹{quote_data.get("ohlc", {}).get("open", 0):,.2f}
+High: ₹{quote_data.get("ohlc", {}).get("high", 0):,.2f}
+Low: ₹{quote_data.get("ohlc", {}).get("low", 0):,.2f}
+Close: ₹{quote_data.get("ohlc", {}).get("close", 0):,.2f}
+52W High: ₹{quote_data.get("week_52_high", 0):,.2f}
+52W Low: ₹{quote_data.get("week_52_low", 0):,.2f}
+Upper Circuit: ₹{quote_data.get("upper_circuit", 0):,.2f}
+Lower Circuit: ₹{quote_data.get("lower_circuit", 0):,.2f}"""
 
         signals = await self.analyze(data)
         for s in signals:

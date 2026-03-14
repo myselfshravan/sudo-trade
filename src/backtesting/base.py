@@ -93,11 +93,15 @@ def print_report(result: BacktestResult) -> None:
     print(f"\n  {'═' * 50}")
     print(f"  Backtest Report: {result.strategy_name}")
     print(f"  {'═' * 50}")
-    print(f"  Period:       {result.start_date.strftime('%Y-%m-%d')} → {result.end_date.strftime('%Y-%m-%d')}")
+    print(
+        f"  Period:       {result.start_date.strftime('%Y-%m-%d')} → {result.end_date.strftime('%Y-%m-%d')}"
+    )
     print(f"  Initial:      ₹{result.initial_capital:,.0f}")
     print(f"  Final:        ₹{result.final_capital:,.0f}")
     print(f"  Total P&L:    ₹{result.total_pnl:,.0f} ({sign}{pnl_pct:.1f}%)")
-    print(f"  Trades:       {result.total_trades} (Win: {result.winning_trades}, Loss: {result.losing_trades})")
+    print(
+        f"  Trades:       {result.total_trades} (Win: {result.winning_trades}, Loss: {result.losing_trades})"
+    )
     print(f"  Win Rate:     {result.win_rate:.1f}%")
     print(f"  Max Drawdown: {result.max_drawdown:.1f}%")
     print(f"  Sharpe Ratio: {result.sharpe_ratio:.2f}")

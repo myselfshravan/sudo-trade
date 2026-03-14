@@ -12,12 +12,15 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from src.core import EventBus, setup_logger
 from src.backtesting import (
-    BacktestConfig, Backtester, CSVDataLoader, JSONDataLoader, print_report,
+    BacktestConfig,
+    Backtester,
+    CSVDataLoader,
+    JSONDataLoader,
+    print_report,
 )
 from src.backtesting.sample_strategy import MovingAverageCrossover
-
+from src.core import EventBus, setup_logger
 
 STRATEGIES = {
     "ma_crossover": MovingAverageCrossover,

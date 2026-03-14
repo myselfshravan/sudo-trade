@@ -1,13 +1,12 @@
 """OpenAI-compatible LLM client using aiohttp. No openai SDK dependency."""
 
-import json
 from typing import Any
 
 import aiohttp
 
-from src.llm.base import LLM, Message, LLMResponse
 from src.core.config import Config
 from src.core.logger import get_logger
+from src.llm.base import LLMResponse, Message
 
 log = get_logger()
 

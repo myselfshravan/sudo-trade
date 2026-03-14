@@ -1,14 +1,13 @@
-import asyncio
-import pytest
 from datetime import datetime
 
-from src.core.events import EventBus
-from src.backtesting.base import BacktestConfig, Candle, print_report
-from src.backtesting.engine import Backtester
+import pytest
+
+from src.backtesting.base import BacktestConfig, Candle
 from src.backtesting.data_loader import CSVDataLoader
-from src.backtesting.simulator import FillSimulator, PositionTracker
+from src.backtesting.engine import Backtester
 from src.backtesting.sample_strategy import MovingAverageCrossover
-from src.strategy.base import TradeAction, TradeSignal
+from src.backtesting.simulator import FillSimulator, PositionTracker
+from src.core.events import EventBus
 
 
 class SyntheticLoader:
@@ -17,21 +16,23 @@ class SyntheticLoader:
     async def load(self, config: BacktestConfig) -> dict[str, list[Candle]]:
         # Price: 100 → 80 (down) → 120 (up) → 100 (down)
         prices = (
-            [100 - i * 2 for i in range(10)]    # 100 → 82 (downtrend)
-            + [82 + i * 4 for i in range(10)]    # 82 → 118 (uptrend)
-            + [118 - i * 2 for i in range(10)]   # 118 → 100 (downtrend)
+            [100 - i * 2 for i in range(10)]  # 100 → 82 (downtrend)
+            + [82 + i * 4 for i in range(10)]  # 82 → 118 (uptrend)
+            + [118 - i * 2 for i in range(10)]  # 118 → 100 (downtrend)
         )
 
         candles = []
         for i, price in enumerate(prices):
-            candles.append(Candle(
-                timestamp=datetime(2024, 1, 1 + i),
-                open=price - 1,
-                high=price + 2,
-                low=price - 2,
-                close=price,
-                volume=100000,
-            ))
+            candles.append(
+                Candle(
+                    timestamp=datetime(2024, 1, 1 + i),
+                    open=price - 1,
+                    high=price + 2,
+                    low=price - 2,
+                    close=price,
+                    volume=100000,
+                )
+            )
 
         return {"TEST": candles}
 
@@ -92,13 +93,9 @@ class TestBacktester:
             initial_capital=100_000,
         )
 
-        strategy = MovingAverageCrossover(
-            events=events, short_window=3, long_window=5, quantity=10
-        )
+        strategy = MovingAverageCrossover(events=events, short_window=3, long_window=5, quantity=10)
 
-        backtester = Backtester(
-            config=config, events=events, data_loader=SyntheticLoader()
-        )
+        backtester = Backtester(config=config, events=events, data_loader=SyntheticLoader())
 
         await strategy.start()
         result = await backtester.run()
@@ -120,9 +117,7 @@ class TestBacktester:
         events.on("market:tick", on_tick)
 
         config = BacktestConfig(data_source="synthetic", symbols=["TEST"])
-        backtester = Backtester(
-            config=config, events=events, data_loader=SyntheticLoader()
-        )
+        backtester = Backtester(config=config, events=events, data_loader=SyntheticLoader())
 
         await backtester.run()
         assert len(received_ticks) == 30
@@ -155,9 +150,7 @@ class TestBacktester:
             events=events, short_window=5, long_window=20, quantity=10
         )
 
-        backtester = Backtester(
-            config=config, events=events, data_loader=CSVDataLoader()
-        )
+        backtester = Backtester(config=config, events=events, data_loader=CSVDataLoader())
 
         await strategy.start()
         result = await backtester.run()
@@ -180,13 +173,9 @@ class TestBacktester:
         events.on("backtest:completed", on_complete)
 
         config = BacktestConfig(data_source="synthetic", symbols=["TEST"])
-        strategy = MovingAverageCrossover(
-            events=events, short_window=3, long_window=5, quantity=10
-        )
+        strategy = MovingAverageCrossover(events=events, short_window=3, long_window=5, quantity=10)
 
-        backtester = Backtester(
-            config=config, events=events, data_loader=SyntheticLoader()
-        )
+        backtester = Backtester(config=config, events=events, data_loader=SyntheticLoader())
 
         await strategy.start()
         await backtester.run()

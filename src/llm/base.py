@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Protocol, runtime_checkable, Any
+from typing import Any, Protocol, runtime_checkable
 
 
 @dataclass
@@ -23,6 +23,7 @@ class LLM(Protocol):
     Claude Opus for heavy thinking, but the interface supports any model.
     Swap, chain, or run multiple models in parallel.
     """
+
     name: str
     model: str
 

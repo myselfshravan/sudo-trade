@@ -4,10 +4,39 @@ version = "0.1.0"
 description = "trades need sudo privileges"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["growwapi", "pyotp", "aiohttp"]
+dependencies = [
+    "aiohttp>=3.13.3",
+    "growwapi>=1.5.0",
+    "pyotp>=2.9.0",
+]
 
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
+    "ruff>=0.15.6",
 ]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "ASYNC", # flake8-async
+]
+ignore = [
+    "E501",     # line length (handled by formatter)
+    "SIM108",   # ternary operator — readability preference
+    "ASYNC240", # pathlib in async — we use asyncio not trio/anyio
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]

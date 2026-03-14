@@ -1,5 +1,4 @@
-from typing import Any, TypeVar, Protocol, runtime_checkable
-
+from typing import Protocol, TypeVar, runtime_checkable
 
 T = TypeVar("T")
 
@@ -7,6 +6,7 @@ T = TypeVar("T")
 @runtime_checkable
 class Plugin(Protocol):
     """Every plugin must have a name."""
+
     name: str
 
     async def start(self) -> None: ...
@@ -42,7 +42,4 @@ class PluginRegistry:
             self._plugins[category].pop(name, None)
 
     def summary(self) -> dict[str, list[str]]:
-        return {
-            category: list(plugins.keys())
-            for category, plugins in self._plugins.items()
-        }
+        return {category: list(plugins.keys()) for category, plugins in self._plugins.items()}

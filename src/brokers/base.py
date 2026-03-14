@@ -1,11 +1,12 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Flag, auto
 from typing import Protocol, runtime_checkable
-from datetime import datetime
 
 
 class BrokerRole(Flag):
     """A broker can serve as data source, executor, or both."""
+
     DATA = auto()
     EXECUTION = auto()
     BOTH = DATA | EXECUTION
@@ -56,6 +57,7 @@ class Broker(Protocol):
     Multiple brokers can run simultaneously with different roles.
     E.g., Groww for data + Kite for execution.
     """
+
     name: str
     role: BrokerRole
 

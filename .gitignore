@@ -23,7 +23,6 @@ wheels/
 Thumbs.db
 
 # uv
-uv.lock
 
 # Data (keep .gitkeep and reference/, ignore everything else)
 data/*
