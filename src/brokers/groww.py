@@ -55,8 +55,8 @@ class GrowwBroker:
         self._api = GrowwAPI(access_token)
         log.info("groww authenticated")
 
-        if BrokerRole.DATA in self.role:
-            self._feed = GrowwFeed(self._api)
+        # Feed is lazily initialized in subscribe() to avoid nested event loop issues
+        # GrowwFeed uses NATS which creates its own event loop on init
 
     async def stop(self) -> None:
         if self._feed_task and not self._feed_task.done():
@@ -73,7 +73,7 @@ class GrowwBroker:
         api_key = self._config.require("GROWW_API_KEY")
 
         totp_secret = self._config.get("GROWW_TOTP_SECRET")
-        if totp_secret:
+        if totp_secret and self._is_valid_base32(totp_secret):
             totp = pyotp.TOTP(totp_secret).now()
             return GrowwAPI.get_access_token(api_key=api_key, totp=totp)
 
@@ -81,7 +81,11 @@ class GrowwBroker:
         if secret:
             return GrowwAPI.get_access_token(api_key=api_key, secret=secret)
 
-        raise ValueError("Either GROWW_TOTP_SECRET or GROWW_API_SECRET required")
+        raise ValueError("Either GROWW_TOTP_SECRET (base32) or GROWW_API_SECRET required")
+
+    @staticmethod
+    def _is_valid_base32(s: str) -> bool:
+        return len(s) < 200 and all(c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567=" for c in s.upper())
 
     # ── Data methods ──
 
@@ -280,8 +284,11 @@ class GrowwBroker:
     # ── WebSocket streaming ──
 
     async def subscribe(self, symbols: list[str]) -> None:
+        if BrokerRole.DATA not in self.role:
+            raise RuntimeError("Broker role must include DATA for streaming.")
+
         if not self._feed:
-            raise RuntimeError("Feed not initialized. Broker role must include DATA.")
+            self._feed = await asyncio.to_thread(GrowwFeed, self._api)
 
         instruments = []
         for sym in symbols:
